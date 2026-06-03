@@ -1,0 +1,76 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram name="ページ-1" id="3eprzTSZ4_LIw4vpnIXY">
+    <mxGraphModel dx="643" dy="488" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="QnujjnHZfFB8al_VVFMj-1" parent="1" style="swimlane;fontStyle=4;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="&lt;span&gt;EventCandidateRepository&lt;/span&gt;" vertex="1">
+          <mxGeometry height="130" width="560" x="274" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-2" parent="QnujjnHZfFB8al_VVFMj-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="&lt;div&gt;+bulkInsertDateCandidates(event_id, dateCandidates: list[str]): list[EventDateCandidate]&lt;/div&gt;" vertex="1">
+          <mxGeometry height="26" width="560" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-3" parent="QnujjnHZfFB8al_VVFMj-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+bulkInsertAreaCandidates(event_id, areaCandidates: list[str]): list[EventAreaCandidate]" vertex="1">
+          <mxGeometry height="26" width="560" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-4" parent="QnujjnHZfFB8al_VVFMj-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+updateDateCandidateScores(event_id): list[EventDateCandidate]" vertex="1">
+          <mxGeometry height="26" width="560" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-6" parent="QnujjnHZfFB8al_VVFMj-1" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+updateAreaCandidateScores(event_id): list[EventAreaCandidate]" vertex="1">
+          <mxGeometry height="26" width="560" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-7" parent="1" style="swimlane;fontStyle=4;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="EventRepository" vertex="1">
+          <mxGeometry height="180" width="750" x="274" y="290" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-9" parent="QnujjnHZfFB8al_VVFMj-7" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+createEvent(manager_id, event_id, event_name, response_deadline, description): Event" vertex="1">
+          <mxGeometry height="26" width="750" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-10" parent="QnujjnHZfFB8al_VVFMj-7" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value=" +findEventsByManagerId(manager_id): list[Event]" vertex="1">
+          <mxGeometry height="26" width="750" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-11" parent="QnujjnHZfFB8al_VVFMj-7" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+updateEventAsConfirmed(event_id, confirmed_area_id, confirmed_shop_name, confirmed_budget, confirmed_datetime_id, payment_destination, paypay_link): Event" vertex="1">
+          <mxGeometry height="42" width="750" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-12" parent="QnujjnHZfFB8al_VVFMj-7" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+findEventsByParticipantId(user_id): list[Event]" vertex="1">
+          <mxGeometry height="30" width="750" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-13" parent="QnujjnHZfFB8al_VVFMj-7" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+findEventDetailById(event_id): EventDetailResponse" vertex="1">
+          <mxGeometry height="30" width="750" y="150" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-14" parent="1" style="swimlane;fontStyle=4;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="EventParticipantRepository" vertex="1">
+          <mxGeometry height="130" width="630" x="274" y="510" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-15" parent="QnujjnHZfFB8al_VVFMj-14" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+bulkInsertParticipants(event_id: str, user_ids: list[str]): list[EventParticipant]" vertex="1">
+          <mxGeometry height="26" width="630" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-16" parent="QnujjnHZfFB8al_VVFMj-14" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+findResponseSummaryByEventId(event_id: str): list[EventParticipant]" vertex="1">
+          <mxGeometry height="26" width="630" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-17" parent="QnujjnHZfFB8al_VVFMj-14" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+updateParticipantBaseResponse(event_id: str, user_id: str, budget: int, area_id: str, comment: str): EventParticipant" vertex="1">
+          <mxGeometry height="26" width="630" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-18" parent="QnujjnHZfFB8al_VVFMj-14" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+upsertDateResponse(event_id: str, user_id: str, date_candidate_id: int, score: str, comment: str): DateResponse" vertex="1">
+          <mxGeometry height="26" width="630" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-19" parent="1" style="swimlane;fontStyle=4;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=none;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="UserRepository" vertex="1">
+          <mxGeometry height="156" width="550" x="274" y="700" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-20" parent="QnujjnHZfFB8al_VVFMj-19" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+createUser(id, password, displayName): User" vertex="1">
+          <mxGeometry height="26" width="550" y="26" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-21" parent="QnujjnHZfFB8al_VVFMj-19" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+findPasswordHashById(id): str" vertex="1">
+          <mxGeometry height="26" width="550" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-22" parent="QnujjnHZfFB8al_VVFMj-19" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+findUserById(user_id): User" vertex="1">
+          <mxGeometry height="26" width="550" y="78" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-23" parent="QnujjnHZfFB8al_VVFMj-19" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+findIdByName(name): list[User]" vertex="1">
+          <mxGeometry height="26" width="550" y="104" as="geometry" />
+        </mxCell>
+        <mxCell id="QnujjnHZfFB8al_VVFMj-24" parent="QnujjnHZfFB8al_VVFMj-19" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;fontStyle=4" value="+findPastRecipients(manager_id): list[User]" vertex="1">
+          <mxGeometry height="26" width="550" y="130" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

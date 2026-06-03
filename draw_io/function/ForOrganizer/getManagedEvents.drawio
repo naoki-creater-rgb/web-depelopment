@@ -1,0 +1,25 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.5.2 Chrome/142.0.7444.265 Electron/39.6.1 Safari/537.36" version="29.5.2">
+  <diagram name="ページ-1" id="p8kEbkc6_h21_D4lN01W">
+    <mxGraphModel dx="932" dy="707" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="YU5Nvlio4yPIJPrYFv7Q-3" edge="1" parent="1" source="YU5Nvlio4yPIJPrYFv7Q-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="YU5Nvlio4yPIJPrYFv7Q-2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="YU5Nvlio4yPIJPrYFv7Q-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="開始" vertex="1">
+          <mxGeometry height="100" width="100" x="350" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="YU5Nvlio4yPIJPrYFv7Q-5" edge="1" parent="1" source="YU5Nvlio4yPIJPrYFv7Q-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="YU5Nvlio4yPIJPrYFv7Q-4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="YU5Nvlio4yPIJPrYFv7Q-2" parent="1" style="whiteSpace=wrap;html=1;" value="変数idに引数管理者IDを代入" vertex="1">
+          <mxGeometry height="60" width="120" x="340" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="YU5Nvlio4yPIJPrYFv7Q-4" parent="1" style="whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="60" width="120" x="340" y="370" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

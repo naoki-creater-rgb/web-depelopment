@@ -1,0 +1,73 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.5.2 Chrome/142.0.7444.265 Electron/39.6.1 Safari/537.36" version="29.5.2">
+  <diagram name="ページ-1" id="SHiTS4MQeY5OMpp2Ub_w">
+    <mxGraphModel dx="946" dy="1891" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-3" edge="1" parent="1" source="8C02nS11qJ9sxxwTWM3U-1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="8C02nS11qJ9sxxwTWM3U-2" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-1" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="開始" vertex="1">
+          <mxGeometry height="80" width="120" x="354" y="-150" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-5" edge="1" parent="1" source="8C02nS11qJ9sxxwTWM3U-2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="8C02nS11qJ9sxxwTWM3U-4" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-2" parent="1" style="whiteSpace=wrap;html=1;" value="変数idに引数のユーザIDを代入する" vertex="1">
+          <mxGeometry height="60" width="120" x="354" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-20" edge="1" parent="1" source="8C02nS11qJ9sxxwTWM3U-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="8C02nS11qJ9sxxwTWM3U-11" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-4" parent="1" style="whiteSpace=wrap;html=1;" value="DB操作のgetPastRecipientsを呼び出し" vertex="1">
+          <mxGeometry height="60" width="120" x="354" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-24" edge="1" parent="1" source="8C02nS11qJ9sxxwTWM3U-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="8C02nS11qJ9sxxwTWM3U-14" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-11" parent="1" style="whiteSpace=wrap;html=1;" value="配列Users[]を作成" vertex="1">
+          <mxGeometry height="60" width="120" x="354" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-26" edge="1" parent="1" source="8C02nS11qJ9sxxwTWM3U-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="8C02nS11qJ9sxxwTWM3U-25" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-14" parent="1" style="shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;" value="i = 0; i &amp;lt; 取得したユーザ要素数; i++" vertex="1">
+          <mxGeometry height="60" width="226" x="301" y="390" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-28" edge="1" parent="1" source="8C02nS11qJ9sxxwTWM3U-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="8C02nS11qJ9sxxwTWM3U-27" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-25" parent="1" style="whiteSpace=wrap;html=1;" value="Userインスタンスを生成" vertex="1">
+          <mxGeometry height="60" width="120" x="354" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-30" edge="1" parent="1" source="8C02nS11qJ9sxxwTWM3U-27" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="8C02nS11qJ9sxxwTWM3U-29" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-27" parent="1" style="whiteSpace=wrap;html=1;" value="生成したインスタンスをUserに格納" vertex="1">
+          <mxGeometry height="60" width="120" x="354" y="670" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-32" edge="1" parent="1" source="8C02nS11qJ9sxxwTWM3U-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="8C02nS11qJ9sxxwTWM3U-31" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-29" parent="1" style="shape=trapezoid;perimeter=trapezoidPerimeter;whiteSpace=wrap;html=1;fixedSize=1;direction=west;" value="" vertex="1">
+          <mxGeometry height="60" width="120" x="354" y="810" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-34" edge="1" parent="1" source="8C02nS11qJ9sxxwTWM3U-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="8C02nS11qJ9sxxwTWM3U-33" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-31" parent="1" style="whiteSpace=wrap;html=1;" value="変数totalCountにUser.lengthを代入" vertex="1">
+          <mxGeometry height="60" width="120" x="354" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-36" edge="1" parent="1" source="8C02nS11qJ9sxxwTWM3U-33" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="8C02nS11qJ9sxxwTWM3U-35" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-33" parent="1" style="whiteSpace=wrap;html=1;" value="メッセージをreturn" vertex="1">
+          <mxGeometry height="60" width="120" x="354" y="1090" as="geometry" />
+        </mxCell>
+        <mxCell id="8C02nS11qJ9sxxwTWM3U-35" parent="1" style="ellipse;whiteSpace=wrap;html=1;" value="終了" vertex="1">
+          <mxGeometry height="80" width="80" x="374" y="1220" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
