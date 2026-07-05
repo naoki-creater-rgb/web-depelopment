@@ -13,9 +13,9 @@ class CreateNewEvent(BaseModel):
 
 
 class ConfirmedInformation(BaseModel):
-    event_id: str
-    confirmed_datetime_id: str
-    confirmed_area_id: str
+    event_id: int
+    confirmed_datetime_id: int
+    confirmed_area_id: int
     confirmed_shop_name: str
     confirmed_budget: float
     payment_destination: str

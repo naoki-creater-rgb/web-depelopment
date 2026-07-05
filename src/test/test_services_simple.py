@@ -22,7 +22,7 @@ def main():
 
     try:
         # ===== OrganizerService の実装確認 =====
-        print("[1] OrganizerService.createNewEvent")
+        print("[1] OrganizerService.create_new_event")
         print("-" * 70)
 
         response_deadline = datetime.now() + timedelta(days=7)
@@ -34,31 +34,31 @@ def main():
 
         # メソッド署名確認
         import inspect
-        sig = inspect.signature(OrganizerService.createNewEvent)
+        sig = inspect.signature(OrganizerService.create_new_event)
         print(f"✓ メソッド署名: {sig}")
         print(f"  パラメータ: {list(sig.parameters.keys())}")
 
-        print("\n[2] OrganizerService.inviteUsers")
+        print("\n[2] OrganizerService.invite_users")
         print("-" * 70)
-        sig = inspect.signature(OrganizerService.inviteUsers)
+        sig = inspect.signature(OrganizerService.invite_users)
         print(f"✓ メソッド署名: {sig}")
         print(f"  パラメータ: {list(sig.parameters.keys())}")
 
-        print("\n[3] OrganizerService.getManagedEvents")
+        print("\n[3] OrganizerService.get_managed_events")
         print("-" * 70)
-        sig = inspect.signature(OrganizerService.getManagedEvents)
+        sig = inspect.signature(OrganizerService.get_managed_events)
         print(f"✓ メソッド署名: {sig}")
         print(f"  パラメータ: {list(sig.parameters.keys())}")
 
-        print("\n[4] OrganizerService.getEventDetail")
+        print("\n[4] OrganizerService.get_event_detail")
         print("-" * 70)
-        sig = inspect.signature(OrganizerService.getEventDetail)
+        sig = inspect.signature(OrganizerService.get_event_detail)
         print(f"✓ メソッド署名: {sig}")
         print(f"  パラメータ: {list(sig.parameters.keys())}")
 
-        print("\n[5] OrganizerService.confirmEvent")
+        print("\n[5] OrganizerService.confirm_event")
         print("-" * 70)
-        sig = inspect.signature(OrganizerService.confirmEvent)
+        sig = inspect.signature(OrganizerService.confirm_event)
         print(f"✓ メソッド署名: {sig}")
         print(f"  パラメータ: {list(sig.parameters.keys())}")
 
@@ -67,15 +67,15 @@ def main():
         print("ParticipantService メソッド確認")
         print("=" * 70)
 
-        print("\n[6] ParticipantService.getParticipatingEvents")
+        print("\n[6] ParticipantService.get_participating_events")
         print("-" * 70)
-        sig = inspect.signature(ParticipantService.getParticipatingEvents)
+        sig = inspect.signature(ParticipantService.get_participating_events)
         print(f"✓ メソッド署名: {sig}")
         print(f"  パラメータ: {list(sig.parameters.keys())}")
 
-        print("\n[7] ParticipantService.submitResponse")
+        print("\n[7] ParticipantService.submit_response")
         print("-" * 70)
-        sig = inspect.signature(ParticipantService.submitResponse)
+        sig = inspect.signature(ParticipantService.submit_response)
         print(f"✓ メソッド署名: {sig}")
         print(f"  パラメータ: {list(sig.parameters.keys())}")
 

@@ -8,6 +8,13 @@ class AuthService:
         """ユーザを登録"""
         try:
             with get_unit_of_work() as uow:
+                # ユーザーIDの重複チェック
+                if uow.user_repository.find_by_id(create_new_account.user_id):
+                    return {
+                        "status": "failed",
+                        "message": "このユーザーIDは既に使用されています"
+                    }
+
                 user = uow.user_repository.create_user(
                     create_new_account.user_id,
                     create_new_account.password,

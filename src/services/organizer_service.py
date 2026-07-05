@@ -23,10 +23,14 @@ class OrganizerService:
                 )
                 event_id = new_event.event_id
 
-                # 候補日時を追加
+                # 候補日時を追加（文字列をdatetimeに変換）
+                candidate_datetimes = [
+                    datetime.strptime(dt, "%Y-%m-%d %H:%M")
+                    for dt in create_new_event.candidate_dates
+                ]
                 new_date_candidates = uow.candidate_repository.bulk_insert_date_candidates(
                     event_id,
-                    create_new_event.candidate_dates
+                    candidate_datetimes
                 )
 
                 # 候補エリアを追加
@@ -52,10 +56,11 @@ class OrganizerService:
                     for ac in new_area_candidates
                 ]
 
-                user_ids = [
-                    uow.user_repository.find_by_name(user_name) for user_name in create_new_event.participants
-                ]
-                participants = uow.response_repository.bulk_insert_participants(event_id, user_ids)
+                # participants はユーザーIDの配列
+                participants = uow.response_repository.bulk_insert_participants(
+                    event_id,
+                    create_new_event.participants
+                )
 
                 participant_list = [
                     {
@@ -87,13 +92,10 @@ class OrganizerService:
             }
 
     @staticmethod
-    def invite_users(event_id: str, user_names: list):
-        """イベントにユーザを招待"""
+    def invite_users(event_id: str, user_ids: list):
+        """イベントにユーザを招待（user_ids はユーザーIDの配列）"""
         try:
             with get_unit_of_work() as uow:
-                user_ids = [
-                    uow.user_repository.find_by_name(user_name) for user_name in user_names
-                ]
                 uow.response_repository.bulk_insert_participants(event_id, user_ids)
                 return {
                     "status": "success",
