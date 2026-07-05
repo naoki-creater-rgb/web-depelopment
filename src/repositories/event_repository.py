@@ -12,13 +12,14 @@ class EventRepository:
         """Repositoryはセッションをコンストラクタで受け取る"""
         self.session = session
 
-    def create_event(self, manager_id: str, event_name: str, response_deadline, description: str) -> Event:
+    def create_event(self, manager_id: str, event_name: str, response_deadline, description: str, desired_budget: int) -> Event:
         """イベントを作成"""
         new_event = Event(
             manager_id=manager_id,
             event_name=event_name,
             response_deadline=response_deadline,
             description=description,
+            desired_budget=desired_budget,
             status="planning"
         )
         self.session.add(new_event)

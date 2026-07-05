@@ -1,13 +1,18 @@
 from unit_of_work import get_unit_of_work
+from controllers.models.user_auth_models import CreateNewAccount, Login
 
 
 class AuthService:
     @staticmethod
-    def register(user_id: str, password: str, name: str):
+    def register(create_new_account: CreateNewAccount):
         """ユーザを登録"""
         try:
             with get_unit_of_work() as uow:
-                user = uow.user_repository.create_user(user_id, password, name)
+                user = uow.user_repository.create_user(
+                    create_new_account.user_id,
+                    create_new_account.password,
+                    create_new_account.nickname
+                )
 
                 return {
                     "status": "success",
@@ -23,11 +28,11 @@ class AuthService:
             }
 
     @staticmethod
-    def login(user_id: str, password: str):
+    def login(login: Login):
         """ログイン処理"""
         try:
             with get_unit_of_work() as uow:
-                user = uow.user_repository.find_by_id(user_id)
+                user = uow.user_repository.find_by_id(login.user_id)
 
                 if not user:
                     return {
@@ -35,7 +40,7 @@ class AuthService:
                         "message": "ユーザが見つかりません"
                     }
 
-                if user.password_hash != password:
+                if user.password_hash != login.password:
                     return {
                         "status": "failed",
                         "message": "パスワードが間違っています"

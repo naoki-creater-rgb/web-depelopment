@@ -1,40 +1,38 @@
 from datetime import datetime
 from models.event_entity import Status
+from models.user_entity import User
+from models.participant_entity import EventParticipant
+from repositories.user_repository import UserRepository
 from unit_of_work import get_unit_of_work
+from controllers.models.manager_models import CreateNewEvent, ConfirmedInformation
 
 
 class OrganizerService:
     @staticmethod
-    def create_new_event(
-        manager_id: str,
-        event_name: str,
-        response_deadline: str,
-        description: str,
-        candidate_areas: list,
-        candidate_dates: list
-    ):
+    def create_new_event(create_new_event: CreateNewEvent):
         """新しいイベントを登録"""
         try:
             with get_unit_of_work() as uow:
                 # イベントを作成
                 new_event = uow.event_repository.create_event(
-                    manager_id,
-                    event_name,
-                    datetime.strptime(response_deadline, "%Y-%m-%d %H:%M"),
-                    description
+                    create_new_event.manager_id,
+                    create_new_event.event_name,
+                    datetime.strptime(create_new_event.response_deadline, "%Y-%m-%d %H:%M"),
+                    create_new_event.description,
+                    create_new_event.desired_budget
                 )
                 event_id = new_event.event_id
 
                 # 候補日時を追加
                 new_date_candidates = uow.candidate_repository.bulk_insert_date_candidates(
                     event_id,
-                    candidate_dates
+                    create_new_event.candidate_dates
                 )
 
                 # 候補エリアを追加
                 new_area_candidates = uow.candidate_repository.bulk_insert_area_candidates(
                     event_id,
-                    candidate_areas
+                    create_new_event.candidate_areas
                 )
 
                 date_candidate_list = [
@@ -54,17 +52,31 @@ class OrganizerService:
                     for ac in new_area_candidates
                 ]
 
+                user_ids = [
+                    uow.user_repository.find_by_name(user_name) for user_name in create_new_event.participants
+                ]
+                participants = uow.response_repository.bulk_insert_participants(event_id, user_ids)
+
+                participant_list = [
+                    {
+                        "user_id": pa.user_id,
+                        "name": pa.user.display_name
+                    }
+                    for pa in participants
+                ]
+
                 return {
                     "status": "success",
                     "data": {
                         "eventId": event_id,
-                        "eventName": event_name,
+                        "eventName": create_new_event.event_name,
                         "deadlineForResponses": new_event.response_deadline,
-                        "managerId": manager_id,
-                        "description": description,
+                        "managerId": create_new_event.manager_id,
+                        "description": create_new_event.description,
                         "status": "planning",
                         "candidateDates": date_candidate_list,
-                        "candidateAreas": area_candidate_list
+                        "candidateAreas": area_candidate_list,
+                        "participants": participant_list
                     }
                 }
         except Exception as e:
@@ -75,10 +87,13 @@ class OrganizerService:
             }
 
     @staticmethod
-    def invite_users(event_id: str, user_ids: list):
+    def invite_users(event_id: str, user_names: list):
         """イベントにユーザを招待"""
         try:
             with get_unit_of_work() as uow:
+                user_ids = [
+                    uow.user_repository.find_by_name(user_name) for user_name in user_names
+                ]
                 uow.response_repository.bulk_insert_participants(event_id, user_ids)
                 return {
                     "status": "success",
@@ -171,26 +186,18 @@ class OrganizerService:
             }
 
     @staticmethod
-    def confirm_event(
-        event_id: str,
-        confirmed_area_id: str,
-        confirmed_shop_name: str,
-        confirmed_budget: float,
-        confirmed_datetime_id: str,
-        payment_destination: str,
-        paypay_link: str = None
-    ):
+    def confirm_event(confirmed_information: ConfirmedInformation):
         """イベント情報を確定"""
         try:
             with get_unit_of_work() as uow:
                 event = uow.event_repository.update_as_confirmed(
-                    event_id,
-                    confirmed_area_id,
-                    confirmed_shop_name,
-                    confirmed_budget,
-                    confirmed_datetime_id,
-                    payment_destination,
-                    paypay_link
+                    confirmed_information.event_id,
+                    confirmed_information.confirmed_area_id,
+                    confirmed_information.confirmed_shop_name,
+                    confirmed_information.confirmed_budget,
+                    confirmed_information.confirmed_datetime_id,
+                    confirmed_information.payment_destination,
+                    confirmed_information.paypay_link
                 )
 
                 if not event:

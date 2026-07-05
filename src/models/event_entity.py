@@ -27,6 +27,7 @@ class Event(Base):
   response_deadline = Column(DateTime, nullable=False)
   description = Column(Text)
   status = Column(SQLEnum(Status), default=Status.planning, nullable=False)
+  desired_budget = Column(Integer)
 
   #必須ではない項目（statusが"confirmed" | "held"であるときに記述）
   confirmed_area_id = Column(Integer)

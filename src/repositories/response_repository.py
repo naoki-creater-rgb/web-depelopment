@@ -110,3 +110,57 @@ class EventParticipantRepository:
         self.session.flush()
         self.session.refresh(existing)
         return existing
+
+    def get_budget_summary(self, event_id: str) -> dict:
+        """予算サマリーを取得（平均、最小、最大）"""
+        budgets = self.session.query(
+            EventParticipant.preferred_budget
+        ).filter(
+            EventParticipant.event_id == event_id,
+            EventParticipant.preferred_budget.isnot(None)
+        ).all()
+
+        if not budgets:
+            return {
+                "average": 0,
+                "min": 0,
+                "max": 0
+            }
+
+        budget_values = [b[0] for b in budgets]
+        return {
+            "average": int(sum(budget_values) / len(budget_values)),
+            "min": min(budget_values),
+            "max": max(budget_values)
+        }
+
+    def get_participant_responses(self, event_id: str) -> List[dict]:
+        """参加者の詳細回答を取得（日程別回答を含む）"""
+        participants = self.find_response_summary_by_event_id(event_id)
+
+        responses = []
+        for participant in participants:
+            # 日程別の回答を取得
+            date_responses_db = self.session.query(DateResponse).filter(
+                DateResponse.event_id == event_id,
+                DateResponse.user_id == participant.user_id
+            ).all()
+
+            date_responses = []
+            for dr in date_responses_db:
+                date_responses.append({
+                    "dateCandidateId": dr.date_candidate_id,
+                    "score": dr.score,
+                    "comment": dr.comment or ""
+                })
+
+            responses.append({
+                "userId": participant.user_id,
+                "userName": participant.user.display_name if participant.user else "Unknown",
+                "preferredBudget": participant.preferred_budget or 0,
+                "preferredArea": participant.preferred_area.proposed_area if participant.preferred_area else None,
+                "overallComment": participant.overall_comment or "",
+                "dateResponses": date_responses
+            })
+
+        return responses
