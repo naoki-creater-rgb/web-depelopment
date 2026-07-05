@@ -1,118 +1,159 @@
 from pydantic import BaseModel
+from models.date_response_entity import DateResponse
+from sqlalchemy import exists, and_
+from unit_of_work import get_unit_of_work
+
 
 class ParticipantService:
-  @staticmethod
-  def getParticipatingEvents(user_id):
-    """
-    ユーザが参加しているイベントを取得する
-    """
-    #TODO:EventRepositoryクラスのfindEventsByManagerId(manager_id)メソッドを呼び出す
-    #TODO:Eventオブジェクトの属性statusごとに異なる配列にオブジェクトを格納する
-    #TODO:返却値を生成して、返却する
-    return {
-      "status": "success",
-      "data": {
-        "unanswered": [
-          {
-            "eventId": 101,
-            "eventName": "新年会2026",
-            "deadlineForResponses": "2026-03-10 15:00",
-            "managerName": "幹事 太郎"
-          }
-        ],
-        "answered": [
-          {
-            "eventId": 102,
-            "eventName": "28卒同窓会",
-            "deadlineForResponses": "2026-03-15 17:00",
-            "managerName": "幹事 次郎"
-          },
-          {
-            "eventId": 99,
-            "eventName": "忘年会2025",
-            "datetime": "2025-12-01 19:00",
-            "managerName": "幹事 太郎"
-          }
-        ]
-      }
-    }
-  
-  @staticmethod
-  def getEventDetails(event_id):
-    """
-    イベント詳細を取得する（回答用）
-    """
-    #TODO:EventRepositoryクラスのfindEventDetailById(event_id)メソッドを呼び出し、値を変数に代入する
-    #TODO:返却値を生成して、返却する
-    return {
-      "status": "success",
-      "data": {
-        "eventId": 101,
-        "eventName": "新年会2026",
-        "managerName": "hanyunaoki",
-        "description": "今年の新年会です。希望の日程とエリアを教えてください！",
-        
-        "candidateDates": [
-          { "dateCandidateId": 1, "datetime": "2026-04-01 19:00" },
-          { "dateCandidateId": 2, "datetime": "2026-04-05 18:30" }
-        ],
-        "candidateAreas": ["新宿", "渋谷", "池袋"]
-      }
-    }
-    
-  # 日程ごとの回答を定義する型（型ヒント用）
-  class DateResponseInput(BaseModel):
-      candidate_id: str
-      score: int
-      comment: str
+    class DateResponseInput(BaseModel):
+        """日程ごとの回答を定義する型"""
+        candidate_id: str
+        score: int
+        comment: str
 
-  @staticmethod
-  def submitResponse(event_id, user_id, budget, area_id, general_comment, date_responses: list[DateResponseInput]):
-     """
-     アンケート結果をテーブルに追加する
-     """
-     #TODO:EventParticipantRepositoryクラスのupdateParticipantBaseResponse(event_id, user_id, bodget, area_id, general_comment)を呼び出す
-     #TODO:EventParticipantRepositoryクラスのupsertDateResponse(event_id, user_id, date_responses[?].candidate_id, date_responses[?].score, date_responses[?].comment)を呼び出す。date_responsesの数だけ実行
-     #TODO:返却値を作成して、値を返す
-     return {
-      "status": "success",
-      "message": "回答を保存しました",
-      "data": {
-        "eventId": 101,
-        "eventName": "新年会2026",
-        
-        "dateResponses": [
-          { "dateCandidateId": 1, "datetime": "2026-04-01 19:00", "score": 5, "comment": "いつでもOK" },
-          { "dateCandidateId": 2, "datetime": "2026-04-05 18:30", "score": 0, "comment": "出張のため不可" }
-        ],
-        "preferredBudget": 5000,
-        "preferredArea": {"area_id": 1, "area": "新宿"},
-        "overallComment": "楽しみにしてます！"
-      }
-    }
-  
-  @staticmethod
-  def getConfirmedDetails(event_id):
-     """
-     確定済みのイベント情報を取得する
-     """
-    #TODO:EventRepositoryクラスのfindEventDetailById(event_id)を呼び出し、値を変数に代入する
-    #TODO:返却値を作成して、値を返す
-     return {
-      "status": "success",
-      "data": {
-        "eventId": 101,
-        "eventName": "新年会2026",
-        "managerName": "hanyunaoki",
-        
-        "confirmedDetails": {
-          "datetime": "2026-04-01 19:00",
-          "area": "新宿",
-          "shopName": "和食処 ますだ",
-          "budget": 5500,
-          "paymentDest": "三菱UFJ銀行 〇〇支店 普通 1234567 マスダシュゾウ",
-          "paypayLink": "https://paypay.me/xxxx/5500",
-          "managerComment": "点数が一番高かったこの日程で予約しました！楽しみましょう。"
-        }
-      }
-    }
+    @staticmethod
+    def get_participating_events(user_id: str):
+        """ユーザが参加しているイベントを取得"""
+        try:
+            with get_unit_of_work() as uow:
+                events = uow.event_repository.find_by_participant_id(user_id)
+
+                unanswered_list = []
+                answered_list = []
+
+                for event in events:
+                    add_list = {
+                        "eventId": event.event_id,
+                        "eventName": event.event_name,
+                        "deadlineForResponses": event.response_deadline,
+                        "managerName": event.manager.display_name
+                    }
+
+                    # イベントに対して回答があるかを確認
+                    is_answered = uow.session.query(exists().where(
+                        and_(
+                            DateResponse.event_id == event.event_id,
+                            DateResponse.user_id == user_id
+                        )
+                    )).scalar()
+
+                    if is_answered:
+                        answered_list.append(add_list)
+                    else:
+                        unanswered_list.append(add_list)
+
+                return {
+                    "status": "success",
+                    "data": {
+                        "unanswered": unanswered_list,
+                        "answered": answered_list
+                    }
+                }
+        except Exception as e:
+            print(f"ERROR in get_participating_events: {e}")
+            return {
+                "status": "failed",
+                "message": "イベント一覧の取得に失敗しました"
+            }
+
+    @staticmethod
+    def get_event_details(event_id: str):
+        """イベント詳細を取得（回答用）"""
+        try:
+            with get_unit_of_work() as uow:
+                event_detail = uow.event_repository.find_detail_by_id(event_id)
+
+                if not event_detail:
+                    return {
+                        "status": "failed",
+                        "message": "イベントが見つかりません"
+                    }
+
+                return {
+                    "status": "success",
+                    "data": event_detail
+                }
+        except Exception as e:
+            print(f"ERROR in get_event_details: {e}")
+            return {
+                "status": "failed",
+                "message": "イベント詳細の取得に失敗しました"
+            }
+
+    @staticmethod
+    def submit_response(
+        event_id: str,
+        user_id: str,
+        budget: int,
+        area_id: int,
+        general_comment: str,
+        date_responses: list
+    ):
+        """アンケート結果を送信"""
+        try:
+            with get_unit_of_work() as uow:
+                # 基本回答を更新
+                uow.response_repository.update_participant_base_response(
+                    event_id,
+                    user_id,
+                    budget,
+                    area_id,
+                    general_comment
+                )
+
+                # 各日程の回答を登録・更新
+                for date_response in date_responses:
+                    uow.response_repository.upsert_date_response(
+                        event_id,
+                        user_id,
+                        date_response.candidate_id,
+                        date_response.score,
+                        date_response.comment
+                    )
+
+                return {
+                    "status": "success",
+                    "message": "回答に成功しました"
+                }
+        except Exception as e:
+            print(f"ERROR in submit_response: {e}")
+            return {
+                "status": "failed",
+                "message": "回答に失敗しました"
+            }
+
+    @staticmethod
+    def get_confirmed_details(event_id: str):
+        """確定済みのイベント情報を取得"""
+        try:
+            with get_unit_of_work() as uow:
+                event = uow.event_repository.find_by_id(event_id)
+
+                if not event:
+                    return {
+                        "status": "failed",
+                        "message": "イベントが見つかりません"
+                    }
+
+                return {
+                    "status": "success",
+                    "data": {
+                        "eventId": event.event_id,
+                        "eventName": event.event_name,
+                        "managerName": event.manager.display_name,
+                        "confirmedDetails": {
+                            "datetime": event.confirmed_date_candidate.proposed_datetime if event.confirmed_date_candidate else None,
+                            "area": event.confirmed_area_id,
+                            "shopName": event.confirmed_shop_name,
+                            "budget": event.confirmed_budget,
+                            "paymentDest": event.payment_destination,
+                            "paypayLink": event.paypay_link
+                        }
+                    }
+                }
+        except Exception as e:
+            print(f"ERROR in get_confirmed_details: {e}")
+            return {
+                "status": "failed",
+                "message": "イベント詳細の取得に失敗しました"
+            }

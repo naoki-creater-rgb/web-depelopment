@@ -1,53 +1,83 @@
-from sqlalchemy.orm import Session
+from unit_of_work import get_unit_of_work
+
 
 class AuthService:
-  @staticmethod
-  def register(user_id, password, name):
-    """
-    ユーザを登録する
-    """
-    #TODO:UserRepositoryクラスのcreateUser(user_id, password, name)メソッドを呼び出す
-    #TODO:返却された値を変数に代入し、返却値を作成、返却する
-    return {
-      "status": "success",
-      "data": {
-        "token": "eyJhbGciOiJIUzI1Ni...", 
-        "user": { "userId": "user_001", "userName": "田中 太郎"}
-      }
-    }
-  
-  @staticmethod
-  def login(user_id, password):
-    """
-    ログイン処理を行う
-    """
-  #TODO:UserRepositoryクラスのfindPasswordById(user_id)を呼び出し、値を引数に代入する
-  #TODO:代入されたパスワードと引数に指定されたpasswordを照会する
-  #TODO:照会が成功した場合は、UserRepositoryクラスのfindUserById(user_name)を呼び出し、返却されたオブジェクトを変数に代入する
-  #TODO:トークンを生成する
-  #TODO:値を生成し、返却する
-    return{
-      "status": "success",
-      "data": {
-        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        "user": {"userId": "user_001", "userName": "田中 太郎"}
-      }
-    }
-  
-  @staticmethod
-  def getPastRecipients(user_id):
-    """
-    過去に送信したユーザを取得する
-    """
-  #TODO:UserRep9ositoryクラスのfindPastRecipients(user_id)を呼び出し、返却された値を変数に代入する
-  #TODO:変数をもとに返却値を生成し、返却する
-    return {
-      "status": "success",
-      "data": {
-        "users": [
-          {"userId": "user_004","userName": "高橋 次郎"},
-          {"userId": "user_005","userName": "伊藤 美咲"}
-        ],
-        "totalCount": 2
-      }
-    }
+    @staticmethod
+    def register(user_id: str, password: str, name: str):
+        """ユーザを登録"""
+        try:
+            with get_unit_of_work() as uow:
+                user = uow.user_repository.create_user(user_id, password, name)
+
+                return {
+                    "status": "success",
+                    "data": {
+                        "userId": user.user_id,
+                        "userName": user.display_name
+                    }
+                }
+        except Exception as e:
+            return {
+                "status": "failed",
+                "message": "ユーザ登録に失敗しました"
+            }
+
+    @staticmethod
+    def login(user_id: str, password: str):
+        """ログイン処理"""
+        try:
+            with get_unit_of_work() as uow:
+                user = uow.user_repository.find_by_id(user_id)
+
+                if not user:
+                    return {
+                        "status": "failed",
+                        "message": "ユーザが見つかりません"
+                    }
+
+                if user.password_hash != password:
+                    return {
+                        "status": "failed",
+                        "message": "パスワードが間違っています"
+                    }
+
+                return {
+                    "status": "success",
+                    "data": {
+                        "user": {
+                            "userId": user.user_id,
+                            "userName": user.display_name
+                        }
+                    }
+                }
+        except Exception:
+            return {
+                "status": "failed",
+                "message": "ログインに失敗しました"
+            }
+
+    @staticmethod
+    def get_past_recipients(user_id: str):
+        """過去に送信したユーザを取得"""
+        try:
+            with get_unit_of_work() as uow:
+                users = uow.user_repository.find_past_recipients(user_id)
+
+                return {
+                    "status": "success",
+                    "data": {
+                        "users": [
+                            {
+                                "userId": user.user_id,
+                                "userName": user.display_name
+                            }
+                            for user in users
+                        ],
+                        "totalCount": len(users)
+                    }
+                }
+        except Exception:
+            return {
+                "status": "failed",
+                "message": "ユーザ取得に失敗しました"
+            }

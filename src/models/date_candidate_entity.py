@@ -13,5 +13,5 @@ class EventDateCandidate(Base):
   proposed_datetime = Column(DateTime, nullable=False)
   total_score = Column(Integer, default=0)
 
-  event = relationship("Event", back_populates="date_candidates")
+  event = relationship("Event", foreign_keys=[event_id], back_populates="date_candidates")
   responses = relationship("DateResponse", back_populates="date_candidate", cascade="all, delete-orphan")

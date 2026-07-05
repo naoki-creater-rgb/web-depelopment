@@ -29,14 +29,15 @@ class Event(Base):
   status = Column(SQLEnum(Status), default=Status.planning, nullable=False)
 
   #必須ではない項目（statusが"confirmed" | "held"であるときに記述）
-  confirmed_area_id = Column(String(255))
+  confirmed_area_id = Column(Integer)
   confirmed_shop_name = Column(String(255))
-  confirmed_budget = Column(String(255))
-  confirmed_datetime_id = Column(DateTime)
+  confirmed_budget = Column(Integer)
+  confirmed_datetime_id = Column(Integer, ForeignKey("event_date_candidates.date_candidate_id", ondelete="CASCADE"))
   payment_destination = Column(String(255))
   paypay_link = Column(String(255))
 
   manager = relationship("User", back_populates="managed_events")
   participants = relationship("EventParticipant", back_populates="event", cascade="all, delete-orphan")
-  date_candidates = relationship("EventDateCandidate", back_populates="event", cascade="all, delete-orphan")
+  date_candidates = relationship("EventDateCandidate", foreign_keys="[EventDateCandidate.event_id]", back_populates="event", cascade="all, delete-orphan")
+  confirmed_date_candidate = relationship("EventDateCandidate", foreign_keys=[confirmed_datetime_id], uselist=False, viewonly=True)
   area_candidates = relationship("EventAreaCandidate", back_populates="event", cascade="all, delete-orphan")
