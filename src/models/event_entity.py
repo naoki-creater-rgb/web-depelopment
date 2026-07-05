@@ -33,7 +33,7 @@ class Event(Base):
   confirmed_area_id = Column(Integer)
   confirmed_shop_name = Column(String(255))
   confirmed_budget = Column(Integer)
-  confirmed_datetime_id = Column(Integer, ForeignKey("event_date_candidates.date_candidate_id", ondelete="CASCADE"))
+  confirmed_datetime_id = Column(Integer, ForeignKey("event_date_candidates.date_candidate_id", ondelete="SET NULL"))
   payment_destination = Column(String(255))
   paypay_link = Column(String(255))
 

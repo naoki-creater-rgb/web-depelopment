@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API テストコンソール</title>
+<style>
+  :root {
+    --bg: #0f1417; --panel: #172025; --line: #26333a; --ink: #e7edf0;
+    --muted: #8fa2ac; --accent: #2dd4bf; --get: #4ade80; --post: #fbbf24;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Noto Sans JP", Meiryo, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+  header { padding: 20px 24px; border-bottom: 1px solid var(--line); }
+  header h1 { margin: 0; font-size: 18px; }
+  header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  header code { font-family: var(--mono); color: var(--accent); }
+  .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: calc(100vh - 66px); }
+  @media (max-width: 860px) { .wrap { grid-template-columns: 1fr; } }
+  .panel { padding: 20px 24px; }
+  .panel.left { border-right: 1px solid var(--line); overflow-y: auto; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; }
+  .card h2 { margin: 0 0 4px; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+  .m { font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+  .m.get { color: var(--get); background: #14271b; }
+  .m.post { color: var(--post); background: #2a2011; }
+  .path { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  label { display: block; font-size: 11px; color: var(--muted); margin: 10px 0 3px; }
+  input, textarea { width: 100%; background: #0e1417; color: var(--ink); border: 1px solid var(--line);
+    border-radius: 6px; padding: 7px 9px; font-family: var(--mono); font-size: 12.5px; }
+  textarea { resize: vertical; min-height: 54px; }
+  button { margin-top: 12px; background: var(--accent); color: #05201c; border: none; border-radius: 7px;
+    padding: 8px 16px; font-weight: 700; font-size: 13px; cursor: pointer; }
+  button:hover { filter: brightness(1.08); }
+  button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .panel.right { position: sticky; top: 0; align-self: start; height: calc(100vh - 66px); display: flex; flex-direction: column; }
+  .out-head { font-size: 12px; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
+  pre { flex: 1; margin: 0; background: #0b1013; border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px; overflow: auto; font-family: var(--mono); font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+  .ok { color: var(--get); } .ng { color: #f87171; }
+  .hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>イベント調整API テストコンソール</h1>
+  <p>接続先: <code id="base">http://localhost:8000</code> ／ 初期データが投入済みです（manager_1, guest_1〜3, event 1・2）</p>
+</header>
+
+<div class="wrap">
+  <div class="panel left">
+
+    <div class="card">
+      <h2><span class="m post">POST</span> アカウント作成</h2>
+      <div class="path">/create/new_account</div>
+      <label>user_id</label><input id="reg_id" value="newuser">
+      <label>nickname</label><input id="reg_name" value="新規ユーザー">
+      <label>password</label><input id="reg_pw" value="pass">
+      <button onclick="register()">送信</button>
+      <div class="hint">同じIDで2回送ると重複エラーになります。</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="m post">POST</span> ログイン</h2>
+      <div class="path">/login</div>
+      <label>user_id</label><input id="log_id" value="guest_1">
+      <label>password</label><input id="log_pw" value="pass1">
+      <button onclick="login()">送信</button>
+    </div>
+
+    <div class="card">
+      <h2><span class="m get">GET</span> 幹事: 管理イベント一覧</h2>
+      <div class="path">/manager/events</div>
+      <label>manager_id</label><input id="mgr_id" value="manager_1">
+      <button onclick="managerEvents()">送信</button>
+    </div>
+
+    <div class="card">
+      <h2><span class="m get">GET</span> 参加者: 参加イベント一覧</h2>
+      <div class="path">/participant/events</div>
+      <label>participant_id</label><input id="par_id" value="guest_1">
+      <button onclick="participantEvents()">送信</button>
+      <div class="hint">guest_1=回答済 / guest_2=未回答 で違いが見られます。</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="m post">POST</span> 幹事: イベント作成</h2>
+      <div class="path">/create/new_event</div>
+      <label>JSON ボディ</label>
+      <textarea id="create_body">{
+  "manager_id": "manager_1",
+  "event_name": "テスト飲み会",
+  "response_deadline": "2026-09-01 18:00",
+  "description": "動作確認用",
+  "candidate_dates": ["2026-09-10 19:00", "2026-09-11 19:00"],
+  "candidate_areas": ["新宿", "上野"],
+  "desired_budget": 4500,
+  "participants": ["guest_1", "guest_2"]
+}</textarea>
+      <button onclick="createEvent()">送信</button>
+    </div>
+
+    <div class="card">
+      <h2><span class="m post">POST</span> 参加者: 回答送信</h2>
+      <div class="path">/participant/create/answer</div>
+      <label>JSON ボディ</label>
+      <textarea id="answer_body">{
+  "event_id": 1,
+  "user_id": "guest_2",
+  "date_responses": [
+    { "date_candidate_id": 1, "score": 5, "comment": "OK" },
+    { "date_candidate_id": 2, "score": 2, "comment": "微妙" }
+  ],
+  "preferred_budget": 4000,
+  "preferred_area_id": 1,
+  "overall_comment": "参加します"
+}</textarea>
+      <button onclick="answer()">送信</button>
+    </div>
+
+    <div class="card">
+      <h2><span class="m post">POST</span> 幹事: イベント確定</h2>
+      <div class="path">/confirm_information</div>
+      <label>JSON ボディ</label>
+      <textarea id="confirm_body">{
+  "event_id": 1,
+  "confirmed_datetime_id": 1,
+  "confirmed_area_id": 1,
+  "confirmed_shop_name": "居酒屋テスト",
+  "confirmed_budget": 4500,
+  "payment_destination": "○○銀行 普通 1234567",
+  "paypay_link": null
+}</textarea>
+      <button onclick="confirm_()">送信</button>
+    </div>
+
+  </div>
+
+  <div class="panel right">
+    <div class="out-head"><span id="status">レスポンスがここに表示されます</span><span id="took"></span></div>
+    <pre id="out">// 左のフォームから送信してください</pre>
+  </div>
+</div>
+
+<script>
+  const BASE = "http://localhost:8000";
+  const $ = (id) => document.getElementById(id);
+
+  async function call(method, path, body) {
+    const t0 = performance.now();
+    $("status").textContent = `${method} ${path} ...`;
+    $("status").className = "";
+    try {
+      const opt = { method, headers: {} };
+      if (body !== undefined) {
+        opt.headers["Content-Type"] = "application/json";
+        opt.body = typeof body === "string" ? body : JSON.stringify(body);
+      }
+      const res = await fetch(BASE + path, opt);
+      const took = Math.round(performance.now() - t0);
+      const json = await res.json();
+      $("out").textContent = JSON.stringify(json, null, 2);
+      const ok = json.status === "success";
+      $("status").textContent = `${res.status} ${method} ${path}` + (json.status ? `  →  ${json.status}` : "");
+      $("status").className = ok ? "ok" : "ng";
+      $("took").textContent = took + " ms";
+    } catch (e) {
+      $("out").textContent = "リクエスト失敗:\n" + e + "\n\nバックエンド(:8000)が起動しているか、CORS設定を確認してください。";
+      $("status").textContent = "接続エラー";
+      $("status").className = "ng";
+    }
+  }
+  const qs = (path, params) => path + "?" + new URLSearchParams(params).toString();
+  const parse = (id) => { try { return JSON.parse($(id).value); } catch (e) { alert("JSONが不正です: " + e); throw e; } };
+
+  function register() { call("POST", "/create/new_account", { user_id: $("reg_id").value, nickname: $("reg_name").value, password: $("reg_pw").value }); }
+  function login() { call("POST", "/login", { user_id: $("log_id").value, password: $("log_pw").value }); }
+  function managerEvents() { call("GET", qs("/manager/events", { manager_id: $("mgr_id").value })); }
+  function participantEvents() { call("GET", qs("/participant/events", { participant_id: $("par_id").value })); }
+  function createEvent() { call("POST", "/create/new_event", parse("create_body")); }
+  function answer() { call("POST", "/participant/create/answer", parse("answer_body")); }
+  function confirm_() { call("POST", "/confirm_information", parse("confirm_body")); }
+</script>
+</body>
+</html>

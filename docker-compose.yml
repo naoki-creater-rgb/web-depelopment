@@ -1,0 +1,56 @@
+# イベント調整アプリ 検証環境
+#   起動:  docker compose up --build
+#   停止:  docker compose down
+#   DB初期化からやり直す: docker compose down -v && docker compose up --build
+#
+#   フロント : http://localhost:3000
+#   API      : http://localhost:8000        （ドキュメント: /docs）
+#   MySQL    : localhost:3307  （ホスト側3306が使用中のため3307で公開）
+
+services:
+  # ---- データベース ----
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: Dendai.7091
+      MYSQL_DATABASE: event_app_db
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # 初回起動時に schema → seed の順で自動実行（ファイル名で順序制御）
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./sql/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pDendai.7091"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  # ---- バックエンド（FastAPI）----
+  backend:
+    build: ./src
+    environment:
+      # コンテナ間はサービス名 mysql で名前解決する
+      DATABASE_URL: "mysql://root:Dendai.7091@mysql/event_app_db?charset=utf8mb4"
+    ports:
+      - "8000:8000"
+    depends_on:
+      mysql:
+        condition: service_healthy   # MySQLが受付可能になるまで待つ
+    volumes:
+      - ./src:/app                    # 開発中はソースを共有してホットリロード
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # ---- フロントエンド（テスト用の静的ページ / nginx配信）----
+  frontend:
+    image: nginx:alpine
+    ports:
+      - "3000:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+
+volumes:
+  mysql_data:
