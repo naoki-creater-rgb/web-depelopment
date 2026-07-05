@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from models.date_response_entity import DateResponse
 from sqlalchemy import exists, and_
 from unit_of_work import get_unit_of_work
+from controllers.models.participant_models import ParticipantCreateAnswer
 
 
 class ParticipantService:
@@ -81,32 +82,25 @@ class ParticipantService:
             }
 
     @staticmethod
-    def submit_response(
-        event_id: str,
-        user_id: str,
-        budget: int,
-        area_id: int,
-        general_comment: str,
-        date_responses: list
-    ):
+    def submit_response(participant_create_answer: ParticipantCreateAnswer):
         """アンケート結果を送信"""
         try:
             with get_unit_of_work() as uow:
                 # 基本回答を更新
                 uow.response_repository.update_participant_base_response(
-                    event_id,
-                    user_id,
-                    budget,
-                    area_id,
-                    general_comment
+                    participant_create_answer.event_id,
+                    participant_create_answer.user_id,
+                    participant_create_answer.preferred_budget,
+                    participant_create_answer.preferred_area_id,
+                    participant_create_answer.overall_comment
                 )
 
                 # 各日程の回答を登録・更新
-                for date_response in date_responses:
+                for date_response in participant_create_answer.date_responses:
                     uow.response_repository.upsert_date_response(
-                        event_id,
-                        user_id,
-                        date_response.candidate_id,
+                        participant_create_answer.event_id,
+                        participant_create_answer.user_id,
+                        date_response.date_candidate_id,
                         date_response.score,
                         date_response.comment
                     )

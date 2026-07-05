@@ -4,7 +4,7 @@ from unit_of_work import get_unit_of_work
 
 class EventDetailService:
     @staticmethod
-    def get_event_detail(event_id: str) -> Dict[str, Any]:
+    def get_event_detail(event_id: int) -> Dict[str, Any]:
         """イベント詳細情報を取得"""
         try:
             with get_unit_of_work() as uow:
