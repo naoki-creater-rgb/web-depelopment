@@ -2,20 +2,148 @@
 
 イベントの企画から日程・エリアの調整、回答集計、そしてPayPayリンクなどを用いた決済情報の確定までを一気通貫で管理できるイベント調整用Webアプリケーションのバックエンドリポジトリです。
 
-詳しい設計資料は、設計資料.pdfに記載されているため、合わせてご参照ください。
+詳しい設計資料は `設計資料.pdf`、APIの入出力仕様は `リクエストレスポンス一覧.pdf` および `API_Implementation_Guide/` に記載しているため、合わせてご参照ください。
 
-現在、**データベース設計（テーブル定義・案）およびデータモデル/操作関数の設計・実装**フェーズが完了しています。
+現在、**バックエンドの基本機能（API・サービス・リポジトリ層）の実装が完了**し、Docker Compose で API・MySQL・動作確認用フロントを一括起動できる状態です。
 
 ---
 
-## 1. システム概要と主要機能一覧
+## 1. 技術スタック
 
-システムは主に以下の3つの機能群から構成されます。
+| レイヤー | 使用技術 |
+| --- | --- |
+| 言語 | Python 3.12 |
+| Webフレームワーク | FastAPI 0.136 / Uvicorn |
+| DBアクセス | SQLAlchemy 2.0 + PyMySQL |
+| データベース | MySQL 8.0 |
+| 認証 | パスワードハッシュ照合 + JWT想定 |
+| 実行環境 | Docker / Docker Compose |
+| 動作確認用フロント | 静的HTML（nginx配信） |
+
+---
+
+## 2. アーキテクチャ
+
+リクエストは以下の層を通って処理されます。
+
+```
+Client (frontend)
+   │  HTTP / JSON
+   ▼
+Controller 層  … FastAPI の APIRouter。ルーティングとリクエストモデル(Pydantic)の受け取り
+   ▼
+Service 層     … 業務ロジック（集計計算・認証・UPSERT制御など）
+   ▼
+Repository 層  … SQL の発行・DB操作（テーブルごとに分割）
+   ▼
+MySQL
+```
+
+- **Unit of Work / セッション管理**: `unit_of_work.py`・`database.py` でDBセッションとトランザクションを一元管理。
+- **Entity / DTO**: `models/` に各テーブルのエンティティ、`dtos/`・`controllers/models/` にリクエスト/レスポンス用モデルを定義。
+
+### ディレクトリ構成
+
+```
+.
+├── docker-compose.yml       # API + MySQL + フロントの一括起動定義
+├── sql/
+│   ├── schema.sql           # テーブル定義（初回起動時に自動実行）
+│   └── seed.sql             # 初期データ
+├── frontend/
+│   └── index.html           # 動作確認用の静的ページ
+├── src/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   ├── main.py              # FastAPI エントリポイント（ルーター統合・CORS設定）
+│   ├── database.py          # DB接続・エンジン設定
+│   ├── unit_of_work.py      # セッション/トランザクション管理
+│   ├── controllers/         # APIエンドポイント（auth / organizer / participant）
+│   │   └── models/          # リクエスト用 Pydantic モデル
+│   ├── services/            # 業務ロジック層
+│   ├── repositories/        # DB操作層
+│   ├── models/              # テーブルエンティティ
+│   ├── dtos/                # データ転送オブジェクト
+│   └── test/                # ユニット/結合テスト
+└── API_Implementation_Guide/ # API仕様のHTMLリファレンス
+```
+
+---
+
+## 3. セットアップと起動
+
+### Docker Compose（推奨）
+
+```bash
+# 初回・ビルドから起動
+docker compose up --build
+
+# 停止
+docker compose down
+
+# DBを初期化してやり直す
+docker compose down -v && docker compose up --build
+```
+
+| サービス | URL |
+| --- | --- |
+| 動作確認用フロント | http://localhost:3000 |
+| API | http://localhost:8000 |
+| API ドキュメント (Swagger UI) | http://localhost:8000/docs |
+| MySQL | localhost:3307 （ホストの3306回避のため3307で公開） |
+
+初回起動時、`sql/schema.sql` → `sql/seed.sql` の順でスキーマと初期データが自動投入されます。
+
+### ローカル単体起動（DBは別途用意）
+
+```bash
+cd src
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+---
+
+## 4. API エンドポイント一覧
+
+`main.py` で認証・幹事・参加者の3ルーターを統合しています。ReactなどのフロントからのアクセスをCORSで許可しています（`localhost:3000` / `localhost:5173`）。
+
+### 認証 (`auth`)
+
+| Method | Path | 概要 |
+| --- | --- | --- |
+| POST | `/create/new_account` | ユーザー新規登録（パスワードはハッシュ化して保存） |
+| POST | `/login` | ログイン・パスワード照合／認証トークン発行 |
+
+### 幹事向け (`organizer`)
+
+| Method | Path | 概要 |
+| --- | --- | --- |
+| GET | `/manager/events?manager_id=...` | 自身が管理するイベント一覧を取得 |
+| POST | `/create/new_event` | 新規イベントを作成（日時候補・エリア候補・招待含む） |
+| POST | `/confirm_information` | 日時・予算・店名・PayPayリンク等の確定情報を保存 |
+
+### 参加者向け (`participant`)
+
+| Method | Path | 概要 |
+| --- | --- | --- |
+| GET | `/participant/events?participant_id=...` | 招待されているイベント一覧を取得 |
+| POST | `/participant/create/answer` | 日時候補へのスコア・希望予算・エリア・コメントを回答（UPSERT） |
+
+| その他 | Path | 概要 |
+| --- | --- | --- |
+| GET | `/` | 疎通確認（ヘルスチェック） |
+
+> リクエスト/レスポンスの具体的なJSON仕様は `リクエストレスポンス一覧.pdf` および `API_Implementation_Guide/frontend_api_reference.html` を参照してください。
+
+---
+
+## 5. 主要機能
 
 ### 認証・ユーザー管理機能
 
 * **ユーザー登録**: ユーザーIDと名前、ハッシュ化されたパスワードをデータベースに保存。
-* **ログイン・認証**: パスワードの照合を行い、JWT認証トークンを発行。
+* **ログイン・認証**: パスワードの照合を行い、認証トークンを発行。
 * **過去の送信先取得**: 自身が過去に幹事として招待したユーザーの履歴を結合（JOIN）により一覧取得。
 
 ### 幹事向け機能（イベント管理）
@@ -33,9 +161,9 @@
 
 ---
 
-## 2. データベース設計 (Schema)
+## 6. データベース設計 (Schema)
 
-現在、以下の6つのテーブルが定義されています。
+以下の6つのテーブルで構成されます（定義は `sql/schema.sql`）。
 
 ```
                     +-------------------+
@@ -114,7 +242,7 @@
 | `proposed_datetime` | DATETIME | 候補日時 |
 | `total_score` | INT | 回答の合計点数（集計用） |
 
-#### 4. `event_area_candidates` (幹子が提示したエリア候補)
+#### 4. `event_area_candidates` (幹事が提示したエリア候補)
 
 | Column Name | Type | Description |
 | --- | --- | --- |
@@ -145,38 +273,26 @@
 
 ---
 
-## 3. 実装済みリポジトリ層・DB操作関数
+## 7. テスト
 
-データアクセス層（リポジトリパターンを想定）の設計として、以下の関数が定義されています。
+`src/test/` にリポジトリ層・サービス層のテストを配置しています。
 
-### 認証・ユーザー管理系
+```bash
+cd src
+pytest
+```
 
-* `createUser(id, password, name)`: `users` テーブルへ新規 INSERT。パスワードはハッシュ化して保存。
-* `findPasswordHashById(id)`: `users` から指定IDのハッシュ化パスワードを取得しログイン照会に利用。
-* `findUserById(id)`: 指定IDの `User` クラスインスタンス（パスワード除く情報）を取得。
-* `findPastRecipients(id)`: `events` と `event_participants`、`users` を結合し、自身が過去に招待したことのあるユーザー一覧を一括取得。
-
-### 幹事・イベント管理系
-
-* `createEvent(...)`: ステータスを `'planning'`（検討中）としてイベントの基本レコードを INSERT。
-* `bulkInsertDateCandidates(candidates)`: 幹事が提示した複数の候補日時をループまたはバルクで `event_date_candidates` に一括挿入。
-* `bulkInsertAreaCandidates(candidates)`: 複数の候補エリアを `event_area_candidates` に一括挿入。
-* `findEventsByManagerId(manager_id)`: 自身が作成したイベントを一覧取得（検討中・確定済・開催済に分類して返却）。
-* `bulkInsertParticipants(participants)`: 選択した複数のユーザーを `event_participants` に登録（初期状態の希望条件は NULL）。
-* `updateDateCandidateScores(event_id)`: 参加者の回答（`participant_date_responses`）を `SUM` 演算し、`event_date_candidates.total_score` をまとめて `UPDATE`。
-
-### 参加者・回答管理系
-
-* `findEventsByParticipating(user_id, filter)`: 招待されているイベントを、回答状況（希望予算等が NULL か否か、または日付回答の有無）に応じて絞り込んで取得。
-* `updateParticipantBaseResponse(...)`: `event_participants` の希望予算、希望エリア、全体コメントを `UPDATE`。
-* `upsertDateResponses(...)`: 各候補日時に対するスコアと個別コメントについて、既にレコードがあれば `UPDATE`、なければ `INSERT`（UPSERT 処理）。
-* `getConfirmedDetails(event_id)`: `events` テーブルを `SELECT` し、ステータスが確定済（`confirmed` / `completed`）の場合に限り、決定した店舗・予算・日時・PayPay等のリンク情報を返却。
+- `test_user.py` / `test_event.py` / `test_candidate.py` / `test_response.py`: リポジトリ層テスト
+- `test_services.py` / `test_services_simple.py` / `test_services_mysql.py`: サービス層テスト
+- `test_session_debug.py`: セッション管理の検証
 
 ---
 
-## 4. 今後の開発ロードマップ
+## 8. 今後の開発ロードマップ
 
-1. **Repositoryクラス・ORMの実装**: SQLアーキテクチャのオブジェクトマッピング（SQLAlchemy等のORMや、プログラミング言語に合わせたリポジトリクラスの具体化）。
-2. **ビジネスロジック・サービス層の構築**: 回答集計時の統計（平均・最小・最大予算、エリアの得票カウントなど）を構築するロジックサービス、JWTトークン生成ロジックの実装。
-3. **API コントローラー層 (エンドポイント) の実装**: フロントエンドからのJSONリクエスト/レスポンス（設計資料に記載のある `status: "success"` などの規定フォーマット）のルーティング実装。
-4. **外部連携テスト**: PayPayリンクのハンドリングおよびフロントエンドのカレンダーコンポーネントとの結合テスト。
+1. **認証の本実装**: JWTの発行・検証、トークンによるエンドポイント保護（現状は認証トークン発行ロジックの整備段階）。
+2. **回答集計ロジックの拡充**: 平均・最小・最大予算、エリア得票カウントなどの統計サービスの強化。
+3. **フロントエンド本実装**: 動作確認用の静的ページから、Reactなどによる本格的なUIへの置き換え。
+4. **外部連携テスト**: PayPayリンクのハンドリングおよびカレンダーコンポーネントとの結合テスト。
+</content>
+</invoke>
