@@ -9,6 +9,10 @@
 -- 何度でも流し直せるよう、既存テーブルを DROP してから再作成する。
 -- =====================================================================
 
+-- 取り込み接続の文字コードを固定（mysqlクライアント既定が latin1 だと
+-- UTF-8 ファイルが誤って latin1 と解釈され、日本語が二重エンコードで壊れるため）
+SET NAMES utf8mb4;
+
 CREATE DATABASE IF NOT EXISTS event_app_db
   DEFAULT CHARACTER SET utf8mb4
   DEFAULT COLLATE utf8mb4_unicode_ci;
