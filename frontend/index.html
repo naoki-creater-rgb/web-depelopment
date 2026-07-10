@@ -86,6 +86,14 @@
     </div>
 
     <div class="card">
+      <h2><span class="m get">GET</span> イベント詳細</h2>
+      <div class="path">/event/detail</div>
+      <label>event_id</label><input id="detail_id" value="1">
+      <button onclick="eventDetail()">送信</button>
+      <div class="hint">event 1・2 が初期投入済み。確定済みなら confirmedDetails が返ります。</div>
+    </div>
+
+    <div class="card">
       <h2><span class="m post">POST</span> 幹事: イベント作成</h2>
       <div class="path">/create/new_event</div>
       <label>JSON ボディ</label>
@@ -179,6 +187,7 @@
   function login() { call("POST", "/login", { user_id: $("log_id").value, password: $("log_pw").value }); }
   function managerEvents() { call("GET", qs("/manager/events", { manager_id: $("mgr_id").value })); }
   function participantEvents() { call("GET", qs("/participant/events", { participant_id: $("par_id").value })); }
+  function eventDetail() { call("GET", qs("/event/detail", { event_id: $("detail_id").value })); }
   function createEvent() { call("POST", "/create/new_event", parse("create_body")); }
   function answer() { call("POST", "/participant/create/answer", parse("answer_body")); }
   function confirm_() { call("POST", "/confirm_information", parse("confirm_body")); }

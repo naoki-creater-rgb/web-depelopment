@@ -52,6 +52,9 @@ def get_unit_of_work():
     uow = UnitOfWork(SessionLocal())
     try:
         yield uow
+        uow.session.commit()
+    except Exception:
+        uow.session.rollback()
+        raise
     finally:
-        if not uow.session.is_active:
-            uow.session.close()
+        uow.session.close()
