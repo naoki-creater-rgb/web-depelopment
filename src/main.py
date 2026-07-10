@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from controllers.user_auth_controller import router as auth_router
 from controllers.manager_controller import router as manager_router
 from controllers.participant_controller import router as participant_router
+from controllers.event_detail_controller import router as event_detail_router
 
 app = FastAPI(title="イベント調整API")
 
@@ -34,6 +35,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(manager_router)
 app.include_router(participant_router)
+app.include_router(event_detail_router)
 
 
 @app.get("/")

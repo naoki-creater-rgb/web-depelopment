@@ -19,4 +19,4 @@ class ConfirmedInformation(BaseModel):
     confirmed_shop_name: str
     confirmed_budget: float
     payment_destination: str
-    paypay_link: str = None
+    paypay_link: str | None = None
