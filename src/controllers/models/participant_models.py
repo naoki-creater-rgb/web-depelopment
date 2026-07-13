@@ -1,8 +1,9 @@
+from typing import Literal
 from pydantic import BaseModel
 
 class AnswerDateResponse(BaseModel):
   date_candidate_id: int
-  score: int
+  score: Literal[5, 3, 0]  # 5:参加できる 3:調整すれば参加できる 0:参加できない
   comment: str
 
 class ParticipantCreateAnswer(BaseModel):

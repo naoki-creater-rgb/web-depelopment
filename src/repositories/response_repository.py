@@ -98,6 +98,7 @@ class EventParticipantRepository:
         self.session.flush()
 
         total = self.session.query(func.sum(DateResponse.score)).filter(
+            DateResponse.event_id == event_id,
             DateResponse.date_candidate_id == date_candidate_id
         ).scalar() or 0
 

@@ -143,6 +143,7 @@ CREATE TABLE participant_date_responses (
   comment           TEXT,
   PRIMARY KEY (event_id, user_id, date_candidate_id),
   KEY idx_responses_date_candidate (date_candidate_id),
+  CONSTRAINT chk_responses_score CHECK (score IN (0, 3, 5)),
   CONSTRAINT fk_responses_participant
     FOREIGN KEY (event_id, user_id)
     REFERENCES event_participants (event_id, user_id)

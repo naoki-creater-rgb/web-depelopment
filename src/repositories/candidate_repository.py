@@ -86,43 +86,36 @@ class EventCandidateRepository:
 
     def get_date_summaries(self, event_id: str) -> List[dict]:
         """日程候補のサマリーを取得（スコア分布付き）"""
-        date_candidates = self.session.query(
+        # スコア分布を候補日ごとにまとめて取得（5点、3点、0点の人数）
+        score_distribution = self.session.query(
             DateResponse.date_candidate_id,
-            func.sum(DateResponse.score).label('total_score')
-        ).filter(DateResponse.event_id == event_id).group_by(
-            DateResponse.date_candidate_id
+            DateResponse.score,
+            func.count(DateResponse.user_id).label('count')
+        ).filter(
+            DateResponse.event_id == event_id
+        ).group_by(
+            DateResponse.date_candidate_id,
+            DateResponse.score
         ).all()
 
-        summaries = []
-        for date_cand_id, total_score in date_candidates:
-            # スコア分布を取得（5点、3点、0点の人数）
-            score_distribution = self.session.query(
-                DateResponse.score,
-                func.count(DateResponse.user_id).label('count')
-            ).filter(
-                DateResponse.event_id == event_id,
-                DateResponse.date_candidate_id == date_cand_id
-            ).group_by(DateResponse.score).all()
+        details_by_candidate = {}
+        for date_cand_id, score, count in score_distribution:
+            details_by_candidate.setdefault(date_cand_id, {})[f"{score}点"] = count
 
-            # スコア分布を辞書に変換
-            details = {}
-            for score, count in score_distribution:
-                details[f"{score}点"] = count
+        # 未回答の候補日も含めるため、候補日テーブルを起点にする
+        date_candidates = self.session.query(EventDateCandidate).filter(
+            EventDateCandidate.event_id == event_id
+        ).all()
 
-            # 日程候補から日時情報を取得
-            date_obj = self.session.query(EventDateCandidate).filter(
-                EventDateCandidate.date_candidate_id == date_cand_id
-            ).first()
-
-            if date_obj:
-                summaries.append({
-                    "dateCandidateId": date_cand_id,
-                    "datetime": date_obj.proposed_datetime.isoformat() if date_obj.proposed_datetime else None,
-                    "totalScore": total_score or 0,
-                    "details": details
-                })
-
-        return summaries
+        return [
+            {
+                "dateCandidateId": candidate.date_candidate_id,
+                "datetime": candidate.proposed_datetime.isoformat() if candidate.proposed_datetime else None,
+                "totalScore": candidate.total_score or 0,
+                "details": details_by_candidate.get(candidate.date_candidate_id, {})
+            }
+            for candidate in date_candidates
+        ]
 
     def get_area_preferences(self, event_id: str) -> List[dict]:
         """エリア選好のサマリーを取得"""
