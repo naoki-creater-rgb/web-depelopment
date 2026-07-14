@@ -48,6 +48,11 @@ class EventCandidateRepository:
             .all()
         )
 
+        # 回答が0件の候補日にも0を書き込むため、一旦リセットしてから集計値を反映する
+        self.session.query(EventDateCandidate)\
+            .filter(EventDateCandidate.event_id == event_id)\
+            .update({"total_score": 0})
+
         for row in score_summary:
             self.session.query(EventDateCandidate)\
                 .filter(EventDateCandidate.date_candidate_id == row.date_candidate_id)\
@@ -67,6 +72,11 @@ class EventCandidateRepository:
             .group_by(EventParticipant.preferred_area_id)
             .all()
         )
+
+        # 誰も選んでいない候補エリアにも0を書き込むため、一旦リセットしてから集計値を反映する
+        self.session.query(EventAreaCandidate)\
+            .filter(EventAreaCandidate.event_id == event_id)\
+            .update({"total_score": 0})
 
         for row in area_summary:
             if row.preferred_area_id is not None:
@@ -119,28 +129,29 @@ class EventCandidateRepository:
 
     def get_area_preferences(self, event_id: str) -> List[dict]:
         """エリア選好のサマリーを取得"""
-        area_preferences = self.session.query(
-            EventParticipant.preferred_area_id,
-            func.count(EventParticipant.user_id).label('count')
-        ).filter(
-            EventParticipant.event_id == event_id,
-            EventParticipant.preferred_area_id.isnot(None)
-        ).group_by(EventParticipant.preferred_area_id).all()
+        # 希望者数を候補エリアごとにまとめて取得
+        count_by_area = dict(
+            self.session.query(
+                EventParticipant.preferred_area_id,
+                func.count(EventParticipant.user_id).label('count')
+            ).filter(
+                EventParticipant.event_id == event_id,
+                EventParticipant.preferred_area_id.isnot(None)
+            ).group_by(EventParticipant.preferred_area_id).all()
+        )
 
-        preferences = []
-        for area_id, count in area_preferences:
-            # エリア情報を取得
-            area_obj = self.session.query(EventAreaCandidate).filter(
-                EventAreaCandidate.area_candidate_id == area_id
-            ).first()
+        # 誰も選んでいない候補エリアも含めるため、候補エリアテーブルを起点にする
+        area_candidates = self.session.query(EventAreaCandidate).filter(
+            EventAreaCandidate.event_id == event_id
+        ).all()
 
-            if area_obj:
-                preferences.append({
-                    "area_id": area_id,
-                    "area": area_obj.proposed_area,
-                    "count": count
-                })
-
-        return preferences
+        return [
+            {
+                "area_id": candidate.area_candidate_id,
+                "area": candidate.proposed_area,
+                "count": count_by_area.get(candidate.area_candidate_id, 0)
+            }
+            for candidate in area_candidates
+        ]
 
 
