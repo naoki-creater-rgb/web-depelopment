@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel
 from models.date_response_entity import DateResponse
 from sqlalchemy import exists, and_
@@ -21,6 +22,9 @@ class ParticipantService:
 
                 unanswered_list = []
                 answered_list = []
+                held_list = []
+
+                now = datetime.now()
 
                 for event in events:
                     add_list = {
@@ -29,6 +33,18 @@ class ParticipantService:
                         "deadlineForResponses": event.response_deadline,
                         "managerName": event.manager.display_name
                     }
+
+                    # 開催済み判定：confirmed_datetime_idに結びつく日時が現在より前ならheld
+                    confirmed = event.confirmed_date_candidate
+                    is_held = (
+                        confirmed is not None
+                        and confirmed.proposed_datetime is not None
+                        and confirmed.proposed_datetime < now
+                    )
+
+                    if is_held:
+                        held_list.append(add_list)
+                        continue
 
                     # イベントに対して回答があるかを確認
                     is_answered = uow.session.query(exists().where(
@@ -47,7 +63,8 @@ class ParticipantService:
                     "status": "success",
                     "data": {
                         "unanswered": unanswered_list,
-                        "answered": answered_list
+                        "answered": answered_list,
+                        "held": held_list
                     }
                 }
         except Exception as e:
